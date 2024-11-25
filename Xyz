@@ -1,0 +1,118 @@
+import React, { useState, useEffect } from "react";
+import { addWaterIntake, getWaterIntakeByUser } from "../api/waterIntakeApi";
+
+const WaterIntakeTracker = ({ userId }) => {
+  const [waterLogs, setWaterLogs] = useState([]);
+  const [amount, setAmount] = useState("");
+  const [totalIntake, setTotalIntake] = useState(0);
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const dailyGoal = 2000; // Daily water intake goal in ml
+
+  // Fetch water logs on component mount
+  useEffect(() => {
+    fetchWaterLogs();
+  }, []);
+
+  const fetchWaterLogs = async () => {
+    try {
+      const response = await getWaterIntakeByUser(userId);
+      setWaterLogs(response.data);
+
+      // Calculate total intake
+      const total = response.data.reduce((sum, log) => sum + log.amount, 0);
+      setTotalIntake(total);
+    } catch (error) {
+      console.error("Error fetching water logs:", error);
+    }
+  };
+
+  const handleAddWater = async () => {
+    if (!amount) {
+      alert("Please enter an amount!");
+      return;
+    }
+    try {
+      const newLog = { amount: parseInt(amount), date };
+      await addWaterIntake(userId, newLog);
+      fetchWaterLogs();
+      setAmount("");
+    } catch (error) {
+      console.error("Error adding water intake:", error);
+    }
+  };
+
+  return (
+    <div className="container mt-5">
+      <h2 className="text-center mb-4">Water Intake Tracker</h2>
+
+      {/* Progress Bar */}
+      <div className="mb-4">
+        <h5>Total Intake: {totalIntake} ml / {dailyGoal} ml</h5>
+        <div className="progress">
+          <div
+            className="progress-bar"
+            role="progressbar"
+            style={{ width: `${(totalIntake / dailyGoal) * 100}%` }}
+            aria-valuenow={totalIntake}
+            aria-valuemin="0"
+            aria-valuemax={dailyGoal}
+          >
+            {(totalIntake / dailyGoal) * 100}% Complete
+          </div>
+        </div>
+      </div>
+
+      {/* Add Water Intake */}
+      <div className="card mb-4">
+        <div className="card-body">
+          <h5 className="card-title">Add Water Intake</h5>
+          <div className="form-group mb-3">
+            <label htmlFor="amount">Amount (ml):</label>
+            <input
+              type="number"
+              className="form-control"
+              id="amount"
+              placeholder="Enter water amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="date">Date:</label>
+            <input
+              type="date"
+              className="form-control"
+              id="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+          <button className="btn btn-primary" onClick={handleAddWater}>
+            Add Water
+          </button>
+        </div>
+      </div>
+
+      {/* Water Logs */}
+      <div className="card">
+        <div className="card-body">
+          <h5 className="card-title">Water Logs</h5>
+          {waterLogs.length === 0 ? (
+            <p>No logs available.</p>
+          ) : (
+            <ul className="list-group">
+              {waterLogs.map((log) => (
+                <li key={log.id} className="list-group-item">
+                  {log.date}: {log.amount} ml
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+};
+
+export default WaterIntakeTracker;
