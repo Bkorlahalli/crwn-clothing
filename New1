@@ -1,0 +1,43 @@
+import React from "react";
+
+const WorkoutTracker = () => {
+  return (
+    <div>
+      <h2>Workout Tracker</h2>
+      <p>Track your workout sessions here.</p>
+    </div>
+  );
+};
+
+export default WorkoutTracker;
+
+
+import React from "react";
+
+const Home = () => {
+  return (
+    <div>
+      <h2>Welcome to Fitness Tracker</h2>
+      <p>Track your fitness goals with ease!</p>
+    </div>
+  );
+};
+
+export default Home;
+
+import React from "react";
+
+const Dashboard = () => {
+  return (
+    <div>
+      <h2>Dashboard</h2>
+      <p>View your progress in one place.</p>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+
+
+
