@@ -1,0 +1,135 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+const WorkoutTracker = ({ userId }) => {
+  const [workouts, setWorkouts] = useState([]);
+  const [type, setType] = useState("");
+  const [duration, setDuration] = useState("");
+  const [calories, setCalories] = useState("");
+  const [error, setError] = useState("");
+
+  const baseUrl = "http://localhost:8080/api/workouts"; // Update with your backend API URL
+
+  // Fetch workouts when the component loads
+  useEffect(() => {
+    fetchWorkouts();
+  }, []);
+
+  // Fetch workouts for the logged-in user
+  const fetchWorkouts = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/user/${userId}`);
+      setWorkouts(response.data);
+    } catch (err) {
+      console.error("Error fetching workouts:", err);
+    }
+  };
+
+  // Add a new workout
+  const handleAddWorkout = async () => {
+    if (!type || !duration || !calories) {
+      setError("All fields are required!");
+      return;
+    }
+    setError("");
+
+    const newWorkout = {
+      type,
+      duration: parseInt(duration),
+      calories: parseInt(calories),
+    };
+
+    try {
+      await axios.post(`${baseUrl}/add/${userId}`, newWorkout);
+      fetchWorkouts(); // Refresh the list
+      setType("");
+      setDuration("");
+      setCalories("");
+    } catch (err) {
+      console.error("Error adding workout:", err);
+    }
+  };
+
+  return (
+    <div className="container mt-5">
+      <h2 className="text-center mb-4">Workout Tracker</h2>
+
+      {/* Add Workout Form */}
+      <div className="card mb-4">
+        <div className="card-body">
+          <h5 className="card-title">Add Workout</h5>
+          {error && <p className="text-danger">{error}</p>}
+          <div className="form-group mb-3">
+            <label htmlFor="type">Workout Type:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="type"
+              placeholder="e.g., Running, Cycling"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="duration">Duration (mins):</label>
+            <input
+              type="number"
+              className="form-control"
+              id="duration"
+              placeholder="e.g., 30"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="calories">Calories Burned:</label>
+            <input
+              type="number"
+              className="form-control"
+              id="calories"
+              placeholder="e.g., 200"
+              value={calories}
+              onChange={(e) => setCalories(e.target.value)}
+            />
+          </div>
+          <button className="btn btn-primary w-100" onClick={handleAddWorkout}>
+            Add Workout
+          </button>
+        </div>
+      </div>
+
+      {/* Workout Logs */}
+      <div className="card">
+        <div className="card-body">
+          <h5 className="card-title">Workout Logs</h5>
+          {workouts.length === 0 ? (
+            <p className="text-muted">No workouts logged yet.</p>
+          ) : (
+            <table className="table table-striped">
+              <thead className="table-primary">
+                <tr>
+                  <th>#</th>
+                  <th>Type</th>
+                  <th>Duration (mins)</th>
+                  <th>Calories Burned</th>
+                </tr>
+              </thead>
+              <tbody>
+                {workouts.map((workout, index) => (
+                  <tr key={workout.id}>
+                    <td>{index + 1}</td>
+                    <td>{workout.type}</td>
+                    <td>{workout.duration}</td>
+                    <td>{workout.calories}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default WorkoutTracker;
