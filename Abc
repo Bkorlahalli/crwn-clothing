@@ -1,0 +1,19 @@
+import React from "react";
+
+function HomePage() {
+  return (
+    <div className="container mt-4">
+      <div className="text-center">
+        <h1>Welcome to the Fitness Tracker!</h1>
+        <p className="lead">
+          Track your daily water intake, calorie consumption, workouts, and more!
+        </p>
+        <p>
+          This app is designed to help you achieve your fitness goals in an organized way.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default HomePage;
