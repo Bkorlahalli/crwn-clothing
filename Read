@@ -1,0 +1,155 @@
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+function Navbar({ setIsAuthenticated }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    navigate("/login");
+  };
+
+  return (
+    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+      <div className="container-fluid">
+        <Link className="navbar-brand" to="/home">Fitness Tracker</Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            <li className="nav-item">
+              <Link className="nav-link" to="/water-tracker">Water Tracker</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/dashboard">Dashboard</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/calorie-calculator">Calorie Calculator</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/workout-tracker">Workout Tracker</Link>
+            </li>
+          </ul>
+          <button
+            className="btn btn-outline-danger"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+export default Navbar;
+
+
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import LoginForm from "./components/LoginForm";
+import Navbar from "./components/Navbar";
+import HomePage from "./pages/HomePage";
+import WaterTracker from "./pages/WaterTracker";
+import Dashboard from "./pages/Dashboard";
+import CalorieCalculator from "./pages/CalorieCalculator";
+import WorkoutTracker from "./pages/WorkoutTracker";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  return (
+    <Router>
+      <Routes>
+        {/* Login Route */}
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/home" />
+            ) : (
+              <LoginForm setIsAuthenticated={setIsAuthenticated} />
+            )
+          }
+        />
+
+        {/* Protected Routes */}
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Navbar setIsAuthenticated={setIsAuthenticated} />
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/water-tracker"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Navbar setIsAuthenticated={setIsAuthenticated} />
+              <WaterTracker />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Navbar setIsAuthenticated={setIsAuthenticated} />
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calorie-calculator"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Navbar setIsAuthenticated={setIsAuthenticated} />
+              <CalorieCalculator />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workout-tracker"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Navbar setIsAuthenticated={setIsAuthenticated} />
+              <WorkoutTracker />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirect unknown routes */}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
+
+
+import React from "react";
+import { Navigate } from "react-router-dom";
+
+function ProtectedRoute({ children, isAuthenticated }) {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  return children;
+}
+
+export default ProtectedRoute;
+
