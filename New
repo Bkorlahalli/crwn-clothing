@@ -1,0 +1,83 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Login from "./components/Login";
+import Home from "./components/Home";
+import WaterTracker from "./components/WaterTracker";
+import WorkoutTracker from "./components/WorkoutTracker";
+import Dashboard from "./components/Dashboard";
+import Profile from "./components/Profile";
+
+const App = () => {
+  return (
+    <Router>
+      <Navbar />
+      <div className="container mt-4">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/water-tracker" element={<WaterTracker />} />
+          <Route path="/workout-tracker" element={<WorkoutTracker />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+};
+
+export default App;
+
+
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Perform logout logic here
+    alert("Logged out successfully!");
+    navigate("/login");
+  };
+
+  return (
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div className="container-fluid">
+        <Link className="navbar-brand" to="/">Fitness Tracker</Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            <li className="nav-item">
+              <Link className="nav-link" to="/">Home</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/water-tracker">Water Tracker</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/workout-tracker">Workout Tracker</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/dashboard">Dashboard</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/profile">Profile</Link>
+            </li>
+          </ul>
+          <button className="btn btn-outline-danger" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
