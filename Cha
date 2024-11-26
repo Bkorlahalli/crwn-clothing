@@ -1,0 +1,146 @@
+import React from "react";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const LineChart = ({ dataPoints, labels, title }) => {
+  // Chart.js configuration
+  const data = {
+    labels: labels, // X-axis labels (e.g., dates or categories)
+    datasets: [
+      {
+        label: title,
+        data: dataPoints, // Y-axis values
+        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        tension: 0.4, // Makes the line smooth
+        borderWidth: 2,
+        fill: true, // Fills the area under the line
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Progress Chart",
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Date",
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Value",
+        },
+        beginAtZero: true, // Start the Y-axis at 0
+      },
+    },
+  };
+
+  return <Line data={data} options={options} />;
+};
+
+export default LineChart;
+
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import LineChart from "./LineChart";
+
+const Dashboard = ({ userId }) => {
+  const [waterData, setWaterData] = useState([]);
+  const [waterLabels, setWaterLabels] = useState([]);
+  const [workoutData, setWorkoutData] = useState([]);
+  const [workoutLabels, setWorkoutLabels] = useState([]);
+
+  useEffect(() => {
+    fetchWaterData();
+    fetchWorkoutData();
+  }, []);
+
+  const fetchWaterData = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/water-intake/user/${userId}`
+      );
+
+      const data = response.data.map((log) => log.amount);
+      const labels = response.data.map((log) => log.date);
+      setWaterData(data);
+      setWaterLabels(labels);
+    } catch (error) {
+      console.error("Error fetching water data:", error);
+    }
+  };
+
+  const fetchWorkoutData = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/workouts/user/${userId}`
+      );
+
+      const data = response.data.map((log) => log.calories);
+      const labels = response.data.map((log) => log.date);
+      setWorkoutData(data);
+      setWorkoutLabels(labels);
+    } catch (error) {
+      console.error("Error fetching workout data:", error);
+    }
+  };
+
+  return (
+    <div className="container mt-5">
+      <h2 className="text-center mb-4">Fitness Dashboard</h2>
+
+      <div className="mb-5">
+        <h4>Water Intake Progress</h4>
+        <LineChart
+          dataPoints={waterData}
+          labels={waterLabels}
+          title="Water Intake (ml)"
+        />
+      </div>
+
+      <div className="mb-5">
+        <h4>Workout Calories Progress</h4>
+        <LineChart
+          dataPoints={workoutData}
+          labels={workoutLabels}
+          title="Calories Burned"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
